@@ -29,10 +29,11 @@ public class Procesador implements Runnable{
    ArrayList<File> files;
    JTextArea areaError;
    String word;
+   ArrayList <ArrayList<String>> ocurrencias;
    FinishListener finishListener;
    
    
-   public Procesador(File file, JList lista, DefaultListModel<String> model, ArrayList<File> files, JTextArea areaError, String word, FinishListener finishListener){
+   public Procesador(File file, JList lista, DefaultListModel<String> model, ArrayList<File> files,ArrayList <ArrayList<String>> ocurrencias, JTextArea areaError, String word, FinishListener finishListener){
       this.file = file;
       this.lista = lista;
       this.model = model;
@@ -40,6 +41,7 @@ public class Procesador implements Runnable{
       this.areaError = areaError;
       this.finishListener = finishListener;
       this.files = files;
+      this.ocurrencias = ocurrencias;
    }
    
    void startSearch(File file){
@@ -49,18 +51,31 @@ public class Procesador implements Runnable{
 
 			String sCurrentLine;
                         int lineNumber = 1;
+                        int flag = 0;
+                        ArrayList <String> itemsPorOcurrencia = new ArrayList<>();
+                        
 			while ((sCurrentLine = br.readLine()) != null) {
 				if (sCurrentLine.contains(word))
                                 {
-                                   files.add(file);
-                                   model.addElement(file.getName() + " |   (line " +lineNumber+")   | " + file.getAbsolutePath() );
-                                   lista.setModel(model);
+                                   if(flag == 0)
+                                   {
+                                      flag = 1;
+                                      files.add(file);
+                                      model.addElement(file.getName() + " |   (line " +lineNumber+")   | " + file.getAbsolutePath() );
+                                      lista.setModel(model);
+                                   }
+                                   
+                                  itemsPorOcurrencia.add("line " + lineNumber);
                                   
-                                   break;
                                 }
                                 
                                 lineNumber++;
 			}
+                        
+                        if(!itemsPorOcurrencia.isEmpty())
+                        {
+                           ocurrencias.add(itemsPorOcurrencia);
+                        }
 
 		} catch (Exception e) {
 			areaError.append("Error!!  -- in "+ file.getName() + " --- "+ e.getMessage()+"\n");

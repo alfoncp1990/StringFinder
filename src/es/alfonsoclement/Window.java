@@ -21,7 +21,9 @@ import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 
 /**
@@ -39,6 +41,7 @@ public class Window extends javax.swing.JFrame implements FinishListener {
    Date inicio;
    DefaultListModel <String> model;
    ArrayList <File> files;
+   ArrayList <ArrayList<String>> ocurrencias;
    
    boolean isSettedPath;
    public Window() {
@@ -261,9 +264,10 @@ public class Window extends javax.swing.JFrame implements FinishListener {
       files = new ArrayList<>();
       listFiles.addMouseListener(null);
       model = new DefaultListModel<>();
+      ocurrencias = new ArrayList<>();
       listFiles.removeAll();
       
-      thread = new Thread(new Procesador(file, listFiles, model, files, areaError, stringTextField.getText(),this));
+      thread = new Thread(new Procesador(file, listFiles, model, files, ocurrencias, areaError, stringTextField.getText(),this));
       thread.start();
       
    }
@@ -285,7 +289,29 @@ public class Window extends javax.swing.JFrame implements FinishListener {
          
             public void mouseClicked(MouseEvent evt) {
                 JList list = (JList) evt.getSource();
-                if (evt.getClickCount() == 2) {
+                
+                if(SwingUtilities.isRightMouseButton(evt))
+                {
+                   int index = list.locationToIndex(evt.getPoint());
+                   
+                   String content = "";
+                   try{
+                      ArrayList <String> aux = ocurrencias.get(index);
+                      for (String cad : aux){
+                         content += cad + "\n";
+                      }
+                      
+                      JOptionPane.showMessageDialog(Window.this, content);
+                      
+                   }catch(Exception ex)
+                   {
+                      areaError.append("Error !!"+ex.getMessage());
+                   }            
+                   
+                }
+                
+                if (evt.getClickCount() == 2) 
+                {
 
                     // Double-click detected
                     int index = list.locationToIndex(evt.getPoint());
